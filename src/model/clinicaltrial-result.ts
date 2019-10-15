@@ -1,5 +1,3 @@
-import { stat } from "fs";
-
 /**
  * Represents a single clinical trial in the results of an
  * endpoint call.
