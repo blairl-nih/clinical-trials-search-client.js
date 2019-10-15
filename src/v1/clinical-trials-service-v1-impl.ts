@@ -128,12 +128,30 @@ export class ClinicalTrialsServiceV1Impl implements ClinicalTrialsService {
      * 
      * @param {string} document JSON document containing a set of search criteria.
      * @returns {Promise<ClinicaltrialResults>}
+     * @memberof ClinicalTrialsService
      */
     async searchTrials(document: string): Promise<ClinicaltrialResults> {
         const resJSON = await this.connection.postRequest(
             '/clinical-trials',
-            document
+            document,
+            { 'Content-Type': 'application/json' }
         );
         return ClinicaltrialResults.fromJSON(resJSON);
+    }
+
+    /**
+     * Retrieves the clinical trial with supplied nci_id or nct_id. All fields (including nested ones) are returned.
+     * 
+     * @param id The trial's NCI ID or NCT ID.
+     * @returns Promise<ClinicaltrialResult>
+     * @memberof ClinicalTrialsService
+     */
+    async getTrial(id:string): Promise<ClinicaltrialResult> {
+        const resJSON = await this.connection.getRequest(
+            '/clinical-trial/' + id,
+            null,
+            { 'Content-Type': 'application/json' }
+        );
+        return ClinicaltrialResult.fromJSON(resJSON);
     }
 }

@@ -46,5 +46,15 @@ export interface ClinicalTrialsService {
      * @returns {Promise<ClinicaltrialResults>}
      */
     searchTrials(document: string): Promise<ClinicaltrialResults>;
+
+
+    /**
+     * Retrieves the clinical trial with supplied nci_id or nct_id. All fields (including nested ones) are returned.
+     * 
+     * @param id The trial's NCI ID or NCT ID.
+     * @returns Promise<ClinicaltrialResult>
+     * @memberof ClinicalTrialsService
+     */
+    getTrial(id: string): Promise<ClinicaltrialResult>;
 }
 

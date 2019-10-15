@@ -10,6 +10,7 @@ import { ClinicalTrialsService } from '../../clinical-trials-service';
 import { CTAPIConnectionV1Impl } from "../../v1";
 import { forOfStatement } from "@babel/types";
 import { ClinicaltrialResults } from "../../model/clinicaltrial-results";
+import { ClinicaltrialResult } from "../../model/clinicaltrial-result";
 
 // Begin test fixture methods.
 
@@ -233,12 +234,16 @@ describe("Services.ClinicalTrials.ClinicalTrialsService", () => {
 
       const MATCH_REQUEST = '{"nci_id": "NCI-2015-00054"}';
 
-      const api_scope = nock('https://clinicaltrialsapi.cancer.gov');
+      const api_scope = nock('https://clinicaltrialsapi.cancer.gov', {
+        reqheaders: {
+          'Content-Type': 'application/json'
+        }
+      });
 
       api_scope.post('/v1/clinical-trials', MATCH_REQUEST)
       .replyWithFile(
         200,
-        path.join(__dirname, '.', 'data', 'single_trial_response.json'),
+        path.join(__dirname, '.', 'data', 'single_trial_search_response.json'),
         { 'Content-Type': 'application/json' }
       );
 
@@ -248,10 +253,35 @@ describe("Services.ClinicalTrials.ClinicalTrialsService", () => {
       const trialList: ClinicaltrialResults = await svc.searchTrials(MATCH_REQUEST);
 
       expect(trialList.total).toBe(1);
+      expect(trialList.trials.length).toBe(1);
       expect(trialList.trials[0].nciID).toBe('NCI-2015-00054');
-
-      expect(2).toBe(2); 
-
+      expect(trialList.trials[0].otherTrialIDs[0].name).toBe("Study Protocol Other Identifier");
+      expect(trialList.trials[0].sites.length).toBe(1302);
     });
+  });
+});
+
+describe("searchTrials", () => {
+  it("Should get a single trial.", async () => {
+    const MATCH_ID = "NCI-2015-00054";
+
+    const api_scope = nock('https://clinicaltrialsapi.cancer.gov');
+
+    api_scope.get('/v1/clinical-trial/' + MATCH_ID)
+    .replyWithFile(
+      200,
+      path.join(__dirname, '.', 'data', 'single_trial_get_response.json'),
+      { 'Content-Type': 'application/json' }
+    );
+
+    let conn: CTAPIConnectionV1Impl = new CTAPIConnectionV1Impl('https', 'clinicaltrialsapi.cancer.gov');
+    const svc: ClinicalTrialsService = <ClinicalTrialsService>new ClinicalTrialsServiceV1Impl(conn);
+
+    const trial: ClinicaltrialResult = await svc.getTrial(MATCH_ID);
+
+    expect(trial.nciID).toBe('NCI-2015-00054');
+    expect(trial.otherTrialIDs[0].name).toBe("Study Protocol Other Identifier");
+    expect(trial.sites.length).toBe(1302);
+
   });
 });
