@@ -676,10 +676,14 @@ export class StudySite {
 
 export class GeoLocation {
 
-  // lat
+  /**
+   * Latitude
+   */
   latitude: number;
 
-  // lon
+  /**
+   * Longitude
+   */
   longitude: number;
 
   constructor() {
@@ -687,6 +691,49 @@ export class GeoLocation {
     this.longitude = null;
   }
 
+  /**
+   * Calculates whether the distance from a point (expressed as a latitude and longitude) is
+   * within radius miles of this location.
+   * @param lat Latitude, expressed in degrees.
+   * @param lon Longitude, expressed in degrees.
+   * @param radius Maximum distance in miles from this Geolocation.
+   */
+  isWithinRadius(lat: number, lon: number, radius: number): boolean {
+    // Calculate the difference between this point and the other in miles,
+    // using the Haversine formula.
+    let resultDistance: number = 0.0;
+    const avgRadiusOfEarth: number = 3960; //Radius of the earth differ, I'm taking the average.
+
+    //Haversine formula
+    //distance = R * 2 * aTan2 ( square root of A, square root of 1 - A )
+    //                   where A = sinus squared (difference in latitude / 2) + (cosine of latitude 1 * cosine of latitude 2 * sinus squared (difference in longitude / 2))
+    //                   and R = the circumference of the earth
+
+    let differenceInLat: number = GeoLocation.degreeToRadian(this.latitude - lat);
+    let differenceInLong: number = GeoLocation.degreeToRadian(this.longitude - lon);
+    let aInnerFormula: number = Math.cos(GeoLocation.degreeToRadian(this.latitude)) * Math.cos(GeoLocation.degreeToRadian(lat)) * Math.sin(differenceInLong / 2) * Math.sin(differenceInLong / 2);
+    let aFormula: number = (Math.sin((differenceInLat) / 2) * Math.sin((differenceInLat) / 2)) + (aInnerFormula);
+    resultDistance = avgRadiusOfEarth * 2 * Math.atan2(Math.sqrt(aFormula), Math.sqrt(1 - aFormula));
+
+    return (resultDistance <= radius);
+  }
+
+  /**
+   * Converts a Degree to Radians.
+   * @param val The value in degrees
+   * @returns The value in radians.
+   */
+  private static degreeToRadian(val: number) {
+    return (Math.PI / 180) * val;
+  }
+
+  /**
+   * Create a GeoLocation object from the JSON representation.
+   * 
+   * @param json 
+   *  JSON string containing a Geolocation represented as
+   *  {"lat": number, "lon": number }
+   */
   static fromJSON(json: any): GeoLocation {
     if (typeof json === 'string') {
       return JSON.parse(json, GeoLocation.reviver);
@@ -704,6 +751,7 @@ export class GeoLocation {
 
       return rtnSite;
     }
+
   }
 
   /**
