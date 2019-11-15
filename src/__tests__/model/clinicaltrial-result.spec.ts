@@ -1,4 +1,4 @@
-import { ClinicaltrialResult, EligibilityInformation } from "../../model/clinicaltrial-result";
+import { ClinicaltrialResult, EligibilityInformation, GeoLocation } from "../../model/clinicaltrial-result";
 
 describe("Services.ClinicalTrials.Model.ClinicaltrialResult", () => {
     describe("fromJSON", () => {
@@ -887,7 +887,7 @@ describe("Services.ClinicalTrials.Model.ClinicaltrialResult", () => {
             expect(actual).toEqual(expected);
         });
 
-        it("Should deserialize a string containing an array of site informations.", () => {
+        it("Should deserialize a string containing an array of site geo-locations.", () => {
             let s: string = `
         {
             "nci_id": "NCI-2015-00054",
@@ -915,10 +915,7 @@ describe("Services.ClinicalTrials.Model.ClinicaltrialResult", () => {
             expected.sites = [
                 {
                     name: "Rhode Island Hospital",
-                    coordinates: {
-                        latitude: 41.8204,
-                        longitude: -71.4128
-                    },
+                    coordinates: null,
                     addressLine1: null,
                     addressLine2: null,
                     postalCode: null,
@@ -940,10 +937,7 @@ describe("Services.ClinicalTrials.Model.ClinicaltrialResult", () => {
                 },
                 {
                     name: "LDS Hospital",
-                    coordinates: {
-                        latitude: 40.7785,
-                        longitude: -111.8799
-                    },
+                    coordinates: null,
                     contactEmail: null,
                     contactName: null,
                     contactPhone: null,
@@ -964,15 +958,21 @@ describe("Services.ClinicalTrials.Model.ClinicaltrialResult", () => {
                     isVA: null
                 }
             ];
+            expected.sites[0].coordinates = new GeoLocation();
+            expected.sites[0].coordinates.latitude = 41.8204;
+            expected.sites[0].coordinates.longitude = -71.4128;
+            expected.sites[1].coordinates = new GeoLocation();
+            expected.sites[1].coordinates.latitude = 40.7785;
+            expected.sites[1].coordinates.longitude = -111.8799;
 
 
             let actual: ClinicaltrialResult = ClinicaltrialResult.fromJSON(s);
 
             //Deep Equal because they are class instances
-            expect(actual).toEqual(expected);
+            expect(actual).toMatchObject(expected);
         });
 
-        it("Should deserialize an object containing an array of site informations.", () => {
+        it("Should deserialize an object containing an array of site geo-locations.", () => {
             let obj: any =
             {
                 "nci_id": "NCI-2015-00054",
@@ -999,10 +999,7 @@ describe("Services.ClinicalTrials.Model.ClinicaltrialResult", () => {
             expected.sites = [
                 {
                     name: "Rhode Island Hospital",
-                    coordinates: {
-                        latitude: 41.8204,
-                        longitude: -71.4128
-                    },
+                    coordinates: null,
                     addressLine1: null,
                     addressLine2: null,
                     postalCode: null,
@@ -1024,10 +1021,7 @@ describe("Services.ClinicalTrials.Model.ClinicaltrialResult", () => {
                 },
                 {
                     name: "LDS Hospital",
-                    coordinates: {
-                        latitude: 40.7785,
-                        longitude: -111.8799
-                    },
+                    coordinates: null,
                     contactEmail: null,
                     contactName: null,
                     contactPhone: null,
@@ -1048,6 +1042,12 @@ describe("Services.ClinicalTrials.Model.ClinicaltrialResult", () => {
                     isVA: null
                 }
             ];
+            expected.sites[0].coordinates = new GeoLocation();
+            expected.sites[0].coordinates.latitude = 41.8204;
+            expected.sites[0].coordinates.longitude = -71.4128;
+            expected.sites[1].coordinates = new GeoLocation();
+            expected.sites[1].coordinates.latitude = 40.7785;
+            expected.sites[1].coordinates.longitude = -111.8799;
 
 
             let actual: ClinicaltrialResult = ClinicaltrialResult.fromJSON(obj);
